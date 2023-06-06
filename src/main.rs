@@ -9,12 +9,9 @@ use async_openai::{
     Client,
 };
 
-#[allow(dead_code)]
 #[derive(Debug, Clone, Bpaf)]
 #[bpaf(options)]
 struct Options {
-    // #[bpaf(long, short, argument("query"))]
-    // query: Vec<String>,
     /// Include the man page contents with the query
     #[bpaf(long, short)]
     include_man: bool,
@@ -33,15 +30,13 @@ struct Options {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let opts = options().run();
-    println!("{:#?}", opts);
-    let model = select_model(opts.model, opts.gpt_4);
-    println!("Model: {:#?}", model);
+    println!("Opts: {:#?}", opts);
 
     let client = Client::new();
 
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u16)
-        .model(model)
+        .model(select_model(opts.model, opts.gpt_4))
         .messages(build_request(
             &opts.command,
             &opts.query.join(" "),
@@ -49,6 +44,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         )?)
         .build()?;
 
+    println!("Request: {:#?}", request);
     let response = client.chat().create(request).await?;
 
     println!("\nResponse:\n");
