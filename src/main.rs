@@ -1,5 +1,5 @@
 use bpaf::*;
-use std::error::Error;
+use std::{error::Error, process::Command};
 
 use async_openai::{
     types::{
@@ -42,7 +42,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u16)
         .model(model)
-        .messages(build_request(&opts.command, &opts.query.join(" "))?)
+        .messages(build_request(
+            &opts.command,
+            &opts.query.join(" "),
+            opts.include_man,
+        )?)
         .build()?;
 
     let response = client.chat().create(request).await?;
@@ -74,17 +78,43 @@ fn select_model(user_specified_model: Option<String>, use_gpt_4: bool) -> String
 fn build_request(
     command: &str,
     query: &str,
+    include_man: bool,
 ) -> Result<Vec<ChatCompletionRequestMessage>, Box<dyn Error>> {
-    return Ok(vec![
-        ChatCompletionRequestMessageArgs::default()
-            .role(Role::System)
-            .content(
-                String::from("Answer the following question about the console command ") + command,
-            )
-            .build()?,
+    let mut messages = vec![ChatCompletionRequestMessageArgs::default()
+        .role(Role::System)
+        .content(String::from("Answer the following question about the console command ") + command)
+        .build()?];
+
+    if include_man {
+        messages.push(
+            ChatCompletionRequestMessageArgs::default()
+                .role(Role::System)
+                .content(
+                    String::from("Base your answer on the following content from the man page and do not invent new features or arguments: ")
+                        + &read_man_page(command)?,
+                )
+                .build()?
+        );
+    }
+
+    messages.push(
         ChatCompletionRequestMessageArgs::default()
             .role(Role::User)
             .content(query)
             .build()?,
-    ]);
+    );
+
+    return Ok(messages);
+}
+
+/// read_man_page will look up the man page for a given command.
+fn read_man_page(command_name: &str) -> Result<String, Box<dyn Error>> {
+    let output = Command::new("man")
+        .arg(command_name)
+        .output()
+        .expect("Failed to read man page.");
+
+    let parsed = std::str::from_utf8(&output.stdout)?;
+
+    return Ok(String::from(parsed));
 }
