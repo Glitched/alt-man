@@ -2,7 +2,10 @@ use bpaf::*;
 use std::error::Error;
 
 use async_openai::{
-    types::{ChatCompletionRequestMessageArgs, CreateChatCompletionRequestArgs, Role},
+    types::{
+        ChatCompletionRequestMessage, ChatCompletionRequestMessageArgs,
+        CreateChatCompletionRequestArgs, Role,
+    },
     Client,
 };
 
@@ -31,26 +34,15 @@ struct Options {
 async fn main() -> Result<(), Box<dyn Error>> {
     let opts = options().run();
     println!("{:#?}", opts);
-    println!("Model: {:#?}", select_model(opts.model, opts.gpt_4));
+    let model = select_model(opts.model, opts.gpt_4);
+    println!("Model: {:#?}", model);
 
     let client = Client::new();
 
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u16)
-        .model("gpt-3.5-turbo")
-        .messages([
-            ChatCompletionRequestMessageArgs::default()
-                .role(Role::System)
-                .content(
-                    String::from("Answer the following question about the console command ")
-                        + &opts.command,
-                )
-                .build()?,
-            ChatCompletionRequestMessageArgs::default()
-                .role(Role::User)
-                .content(opts.query.join(" "))
-                .build()?,
-        ])
+        .model(model)
+        .messages(build_request(&opts.command, &opts.query.join(" "))?)
         .build()?;
 
     let response = client.chat().create(request).await?;
@@ -76,4 +68,23 @@ fn select_model(user_specified_model: Option<String>, use_gpt_4: bool) -> String
             true => String::from("gpt-4"),
         },
     };
+}
+
+/// build_request constructs the messages used to prompt the model.
+fn build_request(
+    command: &str,
+    query: &str,
+) -> Result<Vec<ChatCompletionRequestMessage>, Box<dyn Error>> {
+    return Ok(vec![
+        ChatCompletionRequestMessageArgs::default()
+            .role(Role::System)
+            .content(
+                String::from("Answer the following question about the console command ") + command,
+            )
+            .build()?,
+        ChatCompletionRequestMessageArgs::default()
+            .role(Role::User)
+            .content(query)
+            .build()?,
+    ]);
 }
