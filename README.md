@@ -4,6 +4,17 @@ Mostly a joke project, this is a GPT-powered alternative to the `man` command. S
 
 Written in Rust because aren't all the trendy command line tools? Really, I just wanted an excuse to play around with it.
 
+## Installation
+
+I recommend installing it with brew. Or, you can simply appreciat the joke on this page. There is value in it actually working, though.
+
+```
+brew tap glitched\tap
+brew install glitched\tap\alt-man
+```
+
+Otherwise, feel free to clone and run `cargo install`.
+
 ## Usage
 
 Add an OpenAI API key in your environment as `OPENAI_API_KEY`
@@ -27,14 +38,19 @@ Available options:
 
 Example Request:
 
-```
+````
 ❯ alt-man git point a branch at a specific hash without checking it out
 
-To point a branch at a specific hash without checking it out, you can use the `git branch` command with the `-f` or `--force` option.
+To point a branch at a specific hash without checking it out, you can use
+the `git branch` command with the `-f` or `--force` option.
 
-For example, if you want to point the branch `my-branch` at the commit hash `abc123`, you can run the following command:
+For example, if you want to point the branch `my-branch` at the commit hash
+`abc123`, you can run the following command:
 
-`git branch -f my-branch abc123`
-
-Note that this will move the branch pointer to the specified commit hash and should be used with caution, as it can potentially overwrite changes.
 ```
+git branch -f my-branch abc123
+```
+
+Note that this will move the branch pointer to the specified commit hash
+and should be used with caution, as it can potentially overwrite changes.
+````
