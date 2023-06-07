@@ -6,7 +6,7 @@ Written in Rust because aren't all the trendy command line tools? Really, I just
 
 ## Installation
 
-I recommend installing it with brew. Or, you can simply appreciat the joke on this page. There is value in it actually working, though.
+I recommend installing it with brew. Or, you can simply appreciate the joke on this page. There is value in it actually working, though.
 
 ```
 brew tap glitched\tap
