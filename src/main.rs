@@ -40,7 +40,6 @@ struct Options {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let opts = options().run();
-    // println!("Opts: {:#?}", opts);
 
     let client = Client::new();
 
