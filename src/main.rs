@@ -15,14 +15,24 @@ struct Options {
     /// Include the man page contents with the query
     #[bpaf(long, short)]
     include_man: bool,
+
     /// Use GPT-4 for a better, but more expensive response
     #[bpaf(long, short)]
     gpt_4: bool,
+
+    /// Specify a model by string. Takes precedence over -g
     #[bpaf(long, short)]
     model: Option<String>,
-    // Command in question
+
+    /// Max tokens used in the response. Default: 512
+    #[bpaf(long, short)]
+    answer_max_tokens: Option<u16>,
+
+    /// Command in question
     #[bpaf(positional("COMMAND"))]
     command: String,
+
+    /// Your question for alt-man!
     #[bpaf(positional("QUERY"))]
     query: Vec<String>,
 }
@@ -35,7 +45,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new();
 
     let request = CreateChatCompletionRequestArgs::default()
-        .max_tokens(512u16)
+        .max_tokens(opts.answer_max_tokens.unwrap_or(512u16))
         .model(select_model(opts.model, opts.gpt_4))
         .messages(build_request(
             &opts.command,
@@ -61,13 +71,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 /// select_model returns the OpenAI model to use based on the users input.
 /// The model string overrides the use_gpt_4 flag if both are set.
 fn select_model(user_specified_model: Option<String>, use_gpt_4: bool) -> String {
-    return match user_specified_model {
-        Some(s) => s,
-        None => match use_gpt_4 {
-            false => String::from("gpt-3.5-turbo"),
-            true => String::from("gpt-4"),
-        },
-    };
+    return user_specified_model.unwrap_or(match use_gpt_4 {
+        false => String::from("gpt-3.5-turbo"),
+        true => String::from("gpt-4"),
+    });
 }
 
 /// build_request constructs the messages used to prompt the model.
