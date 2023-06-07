@@ -10,7 +10,7 @@ It doens't work quite yet, but it can't be too much longer.
 
 Add an OpenAI API key in your environment as `OPENAI_API_KEY`
 
-```bash
+```
 ❯ alt-man -h
 
 Usage: [-i] [-g] [-m ARG] [-a ARG] <COMMAND> [<QUERY>]...
@@ -25,4 +25,18 @@ Available options:
     -m, --model <ARG>  Specify a model by string. Takes precedence over -g
     -a, --answer-max-tokens <ARG>  Max tokens used in the response. Default: 512
     -h, --help         Prints help information
+```
+
+Example Request:
+
+```
+❯ alt-man git point a branch at a specific hash without checking it out
+
+To point a branch at a specific hash without checking it out, you can use the `git branch` command with the `-f` or `--force` option.
+
+For example, if you want to point the branch `my-branch` at the commit hash `abc123`, you can run the following command:
+
+`git branch -f my-branch abc123`
+
+Note that this will move the branch pointer to the specified commit hash and should be used with caution, as it can potentially overwrite changes.
 ```

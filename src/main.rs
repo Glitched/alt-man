@@ -40,13 +40,16 @@ struct Options {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let opts = options().run();
-    println!("Opts: {:#?}", opts);
+    // println!("Opts: {:#?}", opts);
 
     let client = Client::new();
 
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(opts.answer_max_tokens.unwrap_or(512u16))
-        .model(select_model(opts.model, opts.gpt_4))
+        .model(opts.model.unwrap_or(String::from(match opts.gpt_4 {
+            true => "gpt-4",
+            false => "gpt-3.5-turbo",
+        })))
         .messages(build_request(
             &opts.command,
             &opts.query.join(" "),
@@ -54,27 +57,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         )?)
         .build()?;
 
-    println!("Request: {:#?}", request);
     let response = client.chat().create(request).await?;
 
-    println!("\nResponse:\n");
     for choice in response.choices {
-        println!(
-            "{}: Role: {}  Content: {}",
-            choice.index, choice.message.role, choice.message.content
-        );
+        println!("{}", choice.message.content,);
     }
 
     Ok(())
-}
-
-/// select_model returns the OpenAI model to use based on the users input.
-/// The model string overrides the use_gpt_4 flag if both are set.
-fn select_model(user_specified_model: Option<String>, use_gpt_4: bool) -> String {
-    return user_specified_model.unwrap_or(match use_gpt_4 {
-        false => String::from("gpt-3.5-turbo"),
-        true => String::from("gpt-4"),
-    });
 }
 
 /// build_request constructs the messages used to prompt the model.
