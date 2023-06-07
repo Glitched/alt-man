@@ -4,8 +4,6 @@ Mostly a joke project, this is a GPT-powered alternative to the `man` command. S
 
 Written in Rust because aren't all the trendy command line tools? Really, I just wanted an excuse to play around with it.
 
-It doens't work quite yet, but it can't be too much longer.
-
 ## Usage
 
 Add an OpenAI API key in your environment as `OPENAI_API_KEY`
