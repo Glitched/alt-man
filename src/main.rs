@@ -95,7 +95,7 @@ fn build_request(
             .build()?,
     );
 
-    return Ok(messages);
+    Ok(messages)
 }
 
 /// read_man_page will look up the man page for a given command.
@@ -107,5 +107,5 @@ fn read_man_page(command_name: &str) -> Result<String, Box<dyn Error>> {
 
     let parsed = std::str::from_utf8(&output.stdout)?;
 
-    return Ok(String::from(parsed));
+    Ok(String::from(parsed))
 }
