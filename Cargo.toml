@@ -7,5 +7,5 @@ edition = "2021"
 
 [dependencies]
 async-openai = "0.10.3"
-bpaf = { version = "0.8.1", features = ["derive", "color"] }
+bpaf = { version = "0.9.4", features = ["derive", "color"] }
 tokio = { version = "1.28.2", features = ["rt-multi-thread"] }
